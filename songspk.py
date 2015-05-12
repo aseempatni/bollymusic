@@ -1,17 +1,25 @@
 from lxml import html
 import requests
-
+from urlparse import urljoin
 import urlparse
-def is_absolute(url):
-	return bool(urlparse.urlparse(url).netloc)
 
+# config
+
+# url of the page containing song list
+song_list_url = "http://www.songspk.link/audio_single_mp3_songs.html"
+
+# base url used to resolve relative urls
 base_url = "http://www.songspk.link/"
 
 # song list -> song page -> mp3
 
+def is_absolute(url):
+	return bool(urlparse.urlparse(url).netloc)
+
+
 # get list of song page urls
 
-page = requests.get('http://www.songspk.link/audio_single_mp3_songs.html')
+page = requests.get(song_list_url)
 tree = html.fromstring(page.text)
 links = tree.xpath('//a[@class="link"]/@href')
 
@@ -25,11 +33,10 @@ for link in links:
 		# print link
 		top_relative_links.append(link)
 
+
 # get mp3 urls from song page urls
 
 mp3_links = []
-
-from urlparse import urljoin
 
 def get_mp3_url_from_page (link):
 	page = requests.get(link)
@@ -55,9 +62,7 @@ def get_mp3_url(mp3_page_urls):
 			mp3_links.append (url)
 			pass
 		except Exception, e:
-			print "Error in parsing url."
 			print e
-			# raise
 
 	print len(mp3_links), "songs link fetched."
 
